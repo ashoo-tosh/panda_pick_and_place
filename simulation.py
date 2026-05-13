@@ -22,14 +22,6 @@ PyBullet's getCameraImage returns 5 channels:
 We linearise the depth buffer with:
     d = far * near / (far - (far - near) * depth_buffer)
 
-Wrist-camera fix
-----------------
-getLinkState returns 8 fields:
-  [0] localInertialPos, [1] localInertialOrn   ← inertial frame
-  [2] worldLinkFramePos, [3] worldLinkFrameOrn ← link URDF frame (no kinematics)
-  [4] worldLinkFramePos (with kinematics), [5] worldLinkFrameOrn (with kinematics)
-We MUST pass computeLinkVelocities=0, computeForwardKinematics=1 to get the
-live world pose. Without computeForwardKinematics=1 the pose is stale/frozen.
 
 The Franka Panda hand link index is 11 (panda_hand).  Link 8 is the flange
 centre – acceptable for IK target but the hand mesh/camera sits on link 11.
@@ -93,37 +85,7 @@ class Simulation:
     # ------------------------------------------------------------------ #
 
     def _load_scene(self):
-        """Load ground plane, table, Franka Panda robot, and random cubes.
-
-        Scene geometry
-        --------------
-        Both the robot AND the cubes are on the table top. This is the
-        intended setup. The robot is NOT floor-mounted.
-
-        Why IK was failing before (analysis):
-          The previous rest pose [0,-0.5,0,-2,0,1.5,0.785] biases the IK
-          solver toward an arm tilted BACKWARD and UPWARD (joint2=-0.5 rad
-          = shoulder leaning away from the table). For a robot on the table
-          reaching forward to cubes at nearly the same height, the arm must
-          tilt FORWARD, which requires joint2 to be POSITIVE (+0.6 to +0.8).
-
-          With the wrong rest pose the solver always returned joint2≈+1.72
-          (arm bent flat/forward but wrong elbow config) and the EE saturated
-          at z≈0.71 rather than descending to z≈0.675.
-
-        Correct geometry:
-          robot base    z = 0.725 m  (table surface 0.625 + 0.10m riser)
-          cube centre   z = 0.650 m  (table + half cube 0.025 m)
-          cube is 0.075 m BELOW base → arm reaches forward and slightly down
-          This is the natural Panda pick-and-place configuration.
-
-          Distance to wrist (cube + 0.107 m gripper offset) in robot frame:
-            dx = 0.25 m, dz = 0.132 m  →  r = 0.283 m
-          Panda reach: ~0.649 m  →  0.283 m is well within workspace.
-
-          Correct rest pose: joint2≈-0.785 (arm leans forward from vertical),
-          joint4≈-2.356 (elbow bent, EE in front), joint6≈+1.571 (gripper down).
-        """
+        
 
         # Ground plane
         self.plane = p.loadURDF("plane.urdf")
@@ -261,34 +223,7 @@ class Simulation:
         return self._capture_overhead(view_matrix, projection_matrix)
 
     def get_wrist_camera(self):
-        """
-        Wrist-mounted camera attached to the panda_hand link (link 11).
-
-        Key fix vs. naïve approach
-        --------------------------
-        getLinkState MUST be called with computeForwardKinematics=1.
-        Without it PyBullet returns a cached/stale link pose that does not
-        update as the joints move → the camera image appears frozen.
-
-        We use:
-            state = p.getLinkState(robot, link,
-                                   computeLinkVelocities=0,
-                                   computeForwardKinematics=1)
-            world_pos  = state[4]   ← updated world pos  (index 4)
-            world_orn  = state[5]   ← updated world quat (index 5)
-
-        Camera geometry
-        ---------------
-        The wrist camera sits on the palm of the Panda hand.
-        - Eye    : 8 cm behind the palm along the hand's local –Z axis
-        - Target : 15 cm below the palm along the hand's local +Z axis
-        - Up     : hand's local Y axis
-
-        Returns
-        -------
-        Same tuple as get_overhead_camera():
-        rgb, depth, seg, view_matrix, projection_matrix
-        """
+        
         # ── Get live world pose of panda_hand (link 11) ────────────────────
         # computeForwardKinematics=1  is CRITICAL – forces PyBullet to recompute
         # the full FK chain so the pose reflects current joint angles.
@@ -334,25 +269,7 @@ class Simulation:
     # ------------------------------------------------------------------ #
 
     def spawn_random_cubes(self, n: int):
-        """
-        Spawn *n* small cubes at fully random positions across the reachable
-        table surface.
-
-        Randomness improvements
-        -----------------------
-        1. Wider x range: [0.35, 0.80] — uses more of the table length.
-        2. Wider y range: [−0.40, +0.40] — uses full table width.
-        3. Larger reach envelope: MAX_REACH raised to 0.72 m.
-        4. Smaller MIN_SEP: 0.09 m — cubes can be closer, more varied scenes.
-        5. Random yaw: cube spawns with a random rotation around Z so it
-           doesn't always land axis-aligned.
-        6. Random drop height: cube spawns 5–25 cm above the table and falls
-           under gravity — gives natural variation in final resting position.
-
-        Parameters
-        ----------
-        n : int  Number of cubes to spawn.
-        """
+       
         self.cubes = []
 
         print(f"[SIM] Spawning {n} cubes (random drop, random yaw) ...")
