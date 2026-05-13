@@ -10,14 +10,14 @@ A fully autonomous pick-and-place simulation for the **Franka Panda 7-DOF roboti
 
 | Angled View | Front View |
 |:-----------:|:----------:|
-| ![Simulation angled view](./assets/sim_setup.png) | ![Simulation front view](./assets/sim_front.png) |
+| ![Simulation angled view](./assets/camera_views.png) | ![Simulation front view](./assets/vision_debug.png) |
 | *Franka Panda arm on a table with 3 randomly placed cubes. START PICKING button visible in the right sidebar.* | *Front-facing view of the robot and table. The blue/red axis markers show the robot base coordinate frame.* |
 
 ### Live Camera Feeds
 
 | Camera Views | Vision Debug |
 |:------------:|:------------:|
-| ![Camera views](./assets/camera_views.png) | ![Vision debug](./assets/vision_debug.png) |
+| ![Camera views](./assets/sim_setup.png) | ![Vision debug](./assets/sim_front.png) |
 | *Left: Wrist-mounted RGB camera. Centre: Overhead segmentation mask. Right: Overhead RGB with detected cube world coordinates annotated.* | *Overhead RGB with 3D detections (top-left). Overhead Depth (top-centre). Seg Mask (top-right). Wrist RGB (bottom-centre). Terminal output in VS Code.* |
 
 ---
