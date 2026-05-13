@@ -8,22 +8,18 @@ A fully autonomous pick-and-place simulation for the **Franka Panda 7-DOF roboti
 
 ### Simulation Environment
 
-![Simulation Setup — angled view]
-*Franka Panda arm mounted on a table with 3 randomly placed coloured cubes. The START PICKING button appears in the right sidebar.*
-
-![Simulation Setup — front view]
-*Front-facing view of the robot and table. The blue/red axis markers show the robot base coordinate frame.*
+| Angled View | Front View |
+|:-----------:|:----------:|
+| ![Simulation angled view](./assets/sim_setup.png) | ![Simulation front view](./assets/sim_front.png) |
+| *Franka Panda arm on a table with 3 randomly placed cubes. START PICKING button visible in the right sidebar.* | *Front-facing view of the robot and table. The blue/red axis markers show the robot base coordinate frame.* |
 
 ### Live Camera Feeds
-![Camera views — wrist, seg mask, overhead RGB]
-*Left: Wrist-mounted RGB camera following the arm in real-time. Centre: Overhead segmentation mask — each body gets a unique colour. Right: Overhead RGB with green circle annotations showing detected cube world coordinates.*
 
-![Vision debug — detection in action]
-*Overhead RGB (top-left) showing detected cubes with their 3D world coordinates. Overhead Depth (top-centre) in jet colormap. Overhead Seg Mask (top-right). Wrist RGB (bottom-centre). Terminal output visible in VS Code.*
-(./assets/sim_setup.png)
-(./assets/sim_front.png)
-(./assets/camera_views.png)
-(./assets/vision_debug.png)
+| Camera Views | Vision Debug |
+|:------------:|:------------:|
+| ![Camera views](./assets/camera_views.png) | ![Vision debug](./assets/vision_debug.png) |
+| *Left: Wrist-mounted RGB camera. Centre: Overhead segmentation mask. Right: Overhead RGB with detected cube world coordinates annotated.* | *Overhead RGB with 3D detections (top-left). Overhead Depth (top-centre). Seg Mask (top-right). Wrist RGB (bottom-centre). Terminal output in VS Code.* |
+
 ---
 
 ## ✨ Features
@@ -42,10 +38,15 @@ A fully autonomous pick-and-place simulation for the **Franka Panda 7-DOF roboti
 
 ```
 .
-├── main.py          # Entry point — pipeline orchestration, retry loop, display thread
-├── simulation.py    # PyBullet scene: table, robot, cubes, cameras
-├── vision.py        # Segmentation-based detection + pixel→world back-projection
-├── control.py       # IK controller, gripper, pick & place sequences
+├── main.py           # Entry point — pipeline orchestration, retry loop, display thread
+├── simulation.py     # PyBullet scene: table, robot, cubes, cameras
+├── vision.py         # Segmentation-based detection + pixel→world back-projection
+├── control.py        # IK controller, gripper, pick & place sequences
+├── assets/
+│   ├── sim_setup.png
+│   ├── sim_front.png
+│   ├── camera_views.png
+│   └── vision_debug.png
 └── README.md
 ```
 
